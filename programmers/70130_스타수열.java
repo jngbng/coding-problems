@@ -1,4 +1,7 @@
 /*
+문제: https://school.programmers.co.kr/learn/courses/30/lessons/70130
+
+메모:
 같은 수의 최대 길이 아닌가? (x2)
 단, 숫자는 붙어 있어서는 안된다.
 반례.

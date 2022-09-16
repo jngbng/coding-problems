@@ -1,6 +1,7 @@
-import java.util.*;
-
 /*
+문제: https://school.programmers.co.kr/learn/courses/30/lessons/68646
+
+메모:
 과정은 중요치 않다. 찬스를 쓰지 않으면 남는건 가장 작은 애다.
 
 (pre) X (post)
@@ -22,6 +23,8 @@ X < min_pre, min_post
 X > min_pre, min_post
 인 X를 재외하면서 새면 된다.
 */
+
+import java.util.*;
 
 class Solution {
     public int solution(int[] a) {
