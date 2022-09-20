@@ -32,7 +32,7 @@ class Solution {
     int[] sumWOTail = new int[size];
 
     sumWithTail[size - 1] = sticker[size - 1];
-    sumWithTail[size - 2] = sticker[size - 2];
+    sumWithTail[size - 2] = Math.max(sticker[size - 2], sticker[size-1]);
     sumWOTail[size - 2] = sticker[size - 2];
 
     for (int i = size - 3; i >= 0; --i) {
@@ -40,6 +40,10 @@ class Solution {
       sumWOTail[i] = Math.max(sumWOTail[i + 1], sticker[i] + sumWOTail[i + 2]);
     }
 
-    return Math.max(sumWithTail[0], sumWOTail[0]);
+    return Math.max(sumWithTail[1], sumWOTail[0]);
   }
 }
+
+/*
+제출 & 디버그 5분.
+*/
