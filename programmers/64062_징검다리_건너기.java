@@ -23,7 +23,7 @@ class Solution {
   boolean canPass(int t) {
     int underCount = 0;
     for (int stone : stones) {
-      if (stone <= t) {
+      if (stone < t) {
         underCount++;
         if (underCount >= k) {
           return false;
