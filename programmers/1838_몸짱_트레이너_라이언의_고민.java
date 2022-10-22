@@ -38,29 +38,8 @@ m개 점이 주어지면, 최대 거리 재는 문제는 모든 쌍에 대해서
 
 import java.util.*;
 
-class Point {
-  int row;
-  int col;
+public class Solution {
 
-  Point(int row, int col) {
-    this.row = row;
-    this.col = col;
-  }
-
-  static Point fromIndex(int side, int index) {
-    return new Point(index / side, index % side);
-  }
-
-  int toIndex(int side) {
-    return row * side + col;
-  }
-
-  int calcDistance(Point other) {
-    return Math.abs(row - other.row) + Math.abs(col - other.col);
-  }
-}
-
-class Solution {
   public int solution(int side, int users, int[][] timetable) {
     int maxUsers = calcMaxConcurrentUsers(timetable);
     return calcMaxDistance(side, maxUsers);
@@ -86,51 +65,90 @@ class Solution {
     return max;
   }
   
-  int finalMaxDist = -1;
-
   int calcMaxDistance(int side, int users) {
     if (users < 2) {
       return 0;
     }
-    int MAX_DIST = 0;
-    this.finalMaxDist = -1;
-    calcMaxDistanceAux(side, new Stack<Point>(), Integer.MAX_VALUE, users);
-    return this.finalMaxDist;
+
+    int totalSlot = side * side;
+    if (users > (totalSlot + 1) / 2) {
+      return 1;
+    }
+    
+    fillDistMap(side, totalSlot);
+    
+    int maxDist = (side - 1) * 2;
+    for (int dist = maxDist; dist > 1; --dist) {
+      if (canPick(side, totalSlot, users, dist)) {
+        return dist;
+      }
+    }
+
+    return 1;
+  }
+
+  int[][] distMap;
+
+  void fillDistMap(int side, int slots) {
+    distMap = new int[slots][slots];
+    for (int i = 0; i < slots; ++i) {
+      int i_row = i / side;
+      int i_col = i % side;
+      for (int j = i + 1; j < slots; ++j) {
+        int j_row = j / side;
+        int j_col = j % side;
+        int dist = Math.abs(i_row - j_row) + Math.abs(i_col - j_col);
+        distMap[i][j] = dist;
+        distMap[j][i] = dist;
+      }
+    }
+  }
+
+  boolean canPick(int side, int totalSlot, int users, int distBetween) {
+    for (int firstUser = 0; firstUser < distBetween; ++firstUser) {
+      Stack<Integer> selected = new Stack<Integer>();
+      selected.push(firstUser);
+      int remainUsers = users - 1;
+      for (int nextUser = firstUser + 1; nextUser < totalSlot; ++nextUser) {
+        if (lessThanAny(selected, nextUser, distBetween)) {
+          continue;
+        }
+        selected.push(nextUser);
+        remainUsers--;
+        if (remainUsers == 0) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
   
-  void calcMaxDistanceAux(int side, Stack<Point> selected, int maxDist, int remainUsers) {
-    if (remainUsers == 0) {
-      this.finalMaxDist = maxDist;
-      return ;
-    }
-
-    int lastSelectedIndex = -1;
-    if (selected.size() > 0) {
-      lastSelectedIndex = selected.peek().toIndex(side);
-    }
-
-    int maxIndex = side * side - remainUsers + 1;
-    for (int i = lastSelectedIndex + 1; i < maxIndex; ++i) {
-      Point newPoint = Point.fromIndex(side, i);
-
-      int newDist = Math.min(maxDist, minDistance(selected, newPoint));
-      if (newDist <= this.finalMaxDist) {
-        continue;
-      }
-      selected.push(newPoint);
-      calcMaxDistanceAux(side, selected, newDist, remainUsers - 1);
-      selected.pop();
-    }
-  }
-
-  int minDistance(List<Point> points, Point newPoint) {
-    int minDist = Integer.MAX_VALUE;
-    for (Point p : points) {
-      int dist = p.calcDistance(newPoint);
-      if (dist < minDist) {
-        minDist = dist;
+  boolean lessThanAny(List<Integer> points, int newPoint, int distBetween) {
+    for (int p : points) {
+      if (distMap[p][newPoint] < distBetween) {
+        return true;
       }
     }
-    return minDist;
+    return false;
   }
 }
+
+
+/*
+
+후기.
+
+N x N 정사각형 grid에서 dist N (맨해튼 거리)를 유지하면서 선택할 수 있는 최대 점의 갯수 구하기인데
+
+첫 행에서 시작점 i를 하나 잡고 (index 0과 N 사이의 점), 이후로는 column, row순으로 순회하며 greedy하게
+
+가능한 점을 고른다인데, 이게 max를 보장하는 이유를 모르겠음.
+
+1차원일 때는 너무나 당연하고. 2차원일 때는, 판의 크기가 고정되어 있으니 반례가 있을 것 같았는데 없나?
+
+모든 고르는 경우를 해봐얄 것 같았는데. 왜 그럴까?
+
+반례가 있다고 가정하면... 순차적으로 검사했을 때 만나는 최초의 점인 X가 아닌 그 다음 어딘가 점을 골랐을 때일꺼다.
+
+그리고 X를 안골랐기 때문에 원래는 1점만 가능했을 껄 2점을 더 고를 수 있다...?
+*/
